@@ -98,7 +98,7 @@ struct ip_vs_service_user {
 
     /* virtual service options */
     char        sched_name[IP_VS_SCHEDNAME_MAXLEN];
-    unsigned    flags;          /* virtual service flags */
+    unsigned long long   flags; /* virtual service flags */
     unsigned    timeout;        /* persistent timeout in sec */
     unsigned    conn_timeout;
     __be32      netmask;        /* persistent netmask */

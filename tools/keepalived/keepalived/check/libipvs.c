@@ -192,7 +192,7 @@ int ipvs_update_service(ipvs_service_t *svc)
 	return dpvs_setsockopt(DPVS_SO_SET_EDIT, &dpvs_svc, sizeof(dpvs_svc));
 }
 
-int ipvs_update_service_by_options(ipvs_service_t *svc, unsigned int options)
+int ipvs_update_service_by_options(ipvs_service_t *svc, unsigned long long options)
 {
 	ipvs_service_entry_t *entry;
 	ipvs_service_t app;
@@ -235,6 +235,14 @@ int ipvs_update_service_by_options(ipvs_service_t *svc, unsigned int options)
 			app.user.flags |= IP_VS_CONN_F_EXPIRE_QUIESCENT;
 		} else {
 			app.user.flags &= ~IP_VS_CONN_F_EXPIRE_QUIESCENT;
+		}
+	}
+
+    if (options & OPT_TOA_PASS) {
+		if (svc->user.flags & IP_VS_CONN_F_TOA_PASS) {
+			app.user.flags |= IP_VS_CONN_F_TOA_PASS;
+		} else {
+			app.user.flags &= ~IP_VS_CONN_F_TOA_PASS;
 		}
 	}
 

@@ -324,6 +324,7 @@ enum {
 	TAG_SOCKPAIR,
 	TAG_CPU,
 	TAG_CONN_EXPIRE_QUIESCENT,
+	TAG_CONN_TOA_PASS,
 };
 
 /* various parsing helpers & parsing functions */
@@ -347,7 +348,7 @@ static int parse_match_snat(const char *buf, ipvs_service_t *svc);
 /* check the options based on the commands_v_options table */
 static void generic_opt_check(int command, unsigned int options);
 static void set_command(int *cmd, const int newcmd);
-static void set_option(unsigned int *options, unsigned int option);
+static void set_option(unsigned long long *options, unsigned long long option);
 
 static void tryhelp_exit(const char *program, const int exit_status);
 static void usage_exit(const char *program, const int exit_status);
@@ -405,7 +406,7 @@ int main(int argc, char **argv)
 
 static int
 parse_options(int argc, char **argv, struct ipvs_command_entry *ce,
-	      unsigned int *options, unsigned int *format)
+	      unsigned long long *options, unsigned int *format)
 {
 	int c, parse;
 	poptContext context;
@@ -498,6 +499,7 @@ parse_options(int argc, char **argv, struct ipvs_command_entry *ce,
 		{ "hash-target", 'Y', POPT_ARG_STRING, &optarg, 'Y', NULL, NULL },
 		{ "cpu", '\0', POPT_ARG_STRING, &optarg, TAG_CPU, NULL, NULL },
 		{ "expire-quiescent", '\0', POPT_ARG_NONE, NULL, TAG_CONN_EXPIRE_QUIESCENT, NULL, NULL },
+		{ "toa-pass", '\0', POPT_ARG_STRING, &optarg, TAG_CONN_TOA_PASS, NULL, NULL },
 		{ NULL, 0, 0, NULL, 0, NULL, NULL }
 	};
 
@@ -874,6 +876,18 @@ parse_options(int argc, char **argv, struct ipvs_command_entry *ce,
 			ce->svc.user.flags = ce->svc.user.flags | IP_VS_CONN_F_EXPIRE_QUIESCENT;
 			break;
 			}
+                case TAG_CONN_TOA_PASS:
+			{
+                        if(!memcmp(optarg , "enable" , strlen("enable")))
+				ce->svc.user.flags = ce->svc.user.flags | IP_VS_CONN_F_TOA_PASS;
+			else if(!memcmp(optarg , "disable" , strlen("disable")))
+				ce->svc.user.flags = ce->svc.user.flags & (~IP_VS_CONN_F_TOA_PASS);
+			else
+				fail(2 , "toa-pass switch must be enable or disable\n");
+
+			set_option(options, OPT_TOA_PASS);
+			break;
+			}
 		default:
 			fail(2, "invalid option `%s'",
 			     poptBadOption(context, POPT_BADOPTION_NOALIAS));
@@ -938,7 +952,7 @@ static int restore_table(int argc, char **argv, int reading_stdin)
 static int process_options(int argc, char **argv, int reading_stdin)
 {
 	struct ipvs_command_entry ce;
-	unsigned int options = OPT_NONE;
+	unsigned long long options = OPT_NONE;
 	unsigned int format = FMT_NONE;
 	int result = 0;
 
@@ -1483,7 +1497,7 @@ set_command(int *cmd, const int newcmd)
 }
 
 static void
-set_option(unsigned int *options, unsigned int option)
+set_option(unsigned long long *options, unsigned long long option)
 {
 	if (*options & option)
 		fail(2, "multiple '%s' options specified", opt2name(option));
@@ -1605,7 +1619,8 @@ static void usage_exit(const char *program, const int exit_status)
 		"  --match        -H MATCH             select service by MATCH 'af,proto,srange,drange,iif,oif', af should be defined if no range defined\n"
 		"  --hash-target  -Y hashtag           choose target for conhash (support sip or qid for quic)\n"
 		"  --cpu            cid                choose cid to show\n"
-		"  --expire-quiescent                  expire the quiescent connections timely whose realserver went down\n",
+		"  --expire-quiescent                  expire the quiescent connections timely whose realserver went down\n"
+		"  --toa-pass                          pass toa address\n",
 		DEF_SCHED);
 
 	exit(exit_status);
@@ -2018,6 +2033,8 @@ print_service_entry(ipvs_service_entry_t *se, unsigned int format, lcoreid_t cid
 			printf(" conn_timeout %u", se->user.conn_timeout);
 		if (se->user.flags & IP_VS_CONN_F_EXPIRE_QUIESCENT)
 			printf(" expire-quiescent");
+                if (se->user.flags & IP_VS_CONN_F_TOA_PASS)
+			printf(" toa-pass");
 	}
 	printf("\n");
 

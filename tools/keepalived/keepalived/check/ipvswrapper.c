@@ -778,6 +778,10 @@ ipvs_set_srule(int cmd, ipvs_service_t *srule, virtual_server_t *vs)
 		srule->user.flags |= IP_VS_CONN_F_EXPIRE_QUIESCENT;
 	}
 
+        if (vs->toa_pass) {
+		srule->user.flags |= IP_VS_CONN_F_TOA_PASS;
+	}
+
 	if (!strcmp(vs->sched, "conhash")) {
 		if (vs->hash_target) {
 			if ((srule->user.protocol != IPPROTO_UDP) &&

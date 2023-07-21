@@ -513,6 +513,7 @@ dump_vs(FILE *fp, const void *data)
 
 	conf_write(fp, " SYN proxy is %s", vs->syn_proxy ? "ON" : "OFF");
 	conf_write(fp, " expire_quiescent_conn is %s", vs->expire_quiescent_conn ? "ON" : "OFF");
+	conf_write(fp, " toa_pass is %s", vs->toa_pass ? "ON" : "OFF");
 
 	if (vs->hash_target) {
 	        switch (vs->hash_target) {
@@ -603,6 +604,7 @@ alloc_vs(const char *param1, const char *param2)
 	new->conn_timeout = 0;
 	new->syn_proxy = false;
 	new->expire_quiescent_conn = false;
+	new->toa_pass = false;
 	new->local_addr_gname = NULL;
 	new->blklst_addr_gname = NULL;
     new->whtlst_addr_gname = NULL;

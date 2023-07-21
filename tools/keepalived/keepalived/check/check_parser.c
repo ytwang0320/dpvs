@@ -957,6 +957,13 @@ expire_quiescent_handler(const vector_t *strvec)
 }
 
 static void
+toa_pass_handler(const vector_t *strvec)
+{
+	virtual_server_t *vs = LIST_TAIL_DATA(check_data->vs);
+	vs->toa_pass = true;
+}
+
+static void
 bind_dev_handler(const vector_t *strvec)
 {
 	virtual_server_t *vs = LIST_TAIL_DATA(check_data->vs);
@@ -1232,6 +1239,7 @@ init_check_keywords(bool active)
 	install_keyword("waddr_group_name", &whtlst_gname_handler);
 	install_keyword("syn_proxy", &syn_proxy_handler);
 	install_keyword("expire_quiescent_conn", &expire_quiescent_handler);
+	install_keyword("toa_pass", &toa_pass_handler);
 	install_keyword("vip_bind_dev", &bind_dev_handler);
 }
 

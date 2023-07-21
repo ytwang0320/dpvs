@@ -49,6 +49,7 @@ enum {
 #define DPVS_CONN_F_IN_TIMER                IP_VS_CONN_F_IN_TIMER
 #define DPVS_CONN_F_REDIRECT_HASHED         IP_VS_CONN_F_REDIRECT_HASHED
 #define DPVS_CONN_F_NOFASTXMIT              IP_VS_CONN_F_NOFASTXMIT
+#define DPVS_CONN_F_TOA_PASS                IP_VS_CONN_F_TOA_PASS
 
 struct dp_vs_conn_param {
     int                 af;
@@ -161,6 +162,10 @@ struct dp_vs_conn {
 
     /* flag for gfwip */
     bool outwall;
+    /* dcdn toa found or not */
+    bool dcdn_found;
+    /* dcdn address */
+    struct in_addr      dcdn_addr;
 
 } __rte_cache_aligned;
 

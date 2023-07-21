@@ -51,6 +51,7 @@
 #define IP_VS_CONN_F_IN_TIMER           0x1000        /* timer attached */
 #define IP_VS_CONN_F_REDIRECT_HASHED    0x2000        /* hashed in redirect table */
 #define IP_VS_CONN_F_NOFASTXMIT         0x4000        /* do not fastxmit */
+#define IP_VS_CONN_F_TOA_PASS           0x8000        /* toa pass */
 
 /* How many connections returned at most for one sockopt ctrl msg.
  * Decrease it for saving memory, increase it for better performace.

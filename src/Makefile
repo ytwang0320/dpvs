@@ -19,7 +19,7 @@
 # Makefile for dpvs (DPVS main program).
 #
 
-#DEBUG := 1		# enable for debug
+DEBUG := 1		# enable for debug
 
 TARGET := dpvs
 

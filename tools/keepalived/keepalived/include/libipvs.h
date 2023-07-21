@@ -44,7 +44,8 @@
 #define OPT_CPU                    0x20000000
 #define OPT_EXPIRE_QUIESCENT_CONN  0x40000000
 #define OPT_WHTLST_ADDRESS         0x80000000
-#define NUMBER_OF_OPT                   33
+#define OPT_TOA_PASS              0x100000000
+#define NUMBER_OF_OPT                   34
 
 #define MINIMUM_IPVS_VERSION_MAJOR      1
 #define MINIMUM_IPVS_VERSION_MINOR      1
@@ -97,7 +98,7 @@ extern int ipvs_add_service(ipvs_service_t *svc);
 extern int ipvs_update_service(ipvs_service_t *svc);
 
 /* update a virtual service based on option */
-extern int ipvs_update_service_by_options(ipvs_service_t *svc, unsigned int options);
+extern int ipvs_update_service_by_options(ipvs_service_t *svc, unsigned long long options);
 
 /* config the service's synproxy switch */
 extern int ipvs_update_service_synproxy(ipvs_service_t *svc , int enable);

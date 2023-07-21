@@ -345,6 +345,9 @@ struct dp_vs_conn *dp_vs_schedule(struct dp_vs_service *svc,
     if (svc->flags & DP_VS_SVC_F_ONEPACKET && iph->proto == IPPROTO_UDP) {
         flags |= DPVS_CONN_F_ONE_PACKET;
     }
+    if (svc->flags & DPVS_CONN_F_TOA_PASS && iph->proto == IPPROTO_TCP) {
+        flags |= DPVS_CONN_F_TOA_PASS;
+    }
     conn = dp_vs_conn_new(mbuf, iph, &param, dest, flags);
     if (!conn)
         return NULL;

@@ -330,11 +330,6 @@ static inline int tcp_in_check_toa(struct dp_vs_conn *conn, struct tcphdr *tcph,
                 return EDPVS_NOTEXIST;
             if (opsize > len)
                 return EDPVS_NOTEXIST;    /* partial options */
-            if ((opcode == TCP_OPT_ADDR)
-                    && (opsize == TCP_OLEN_IP4_ADDR
-                        || opsize == TCP_OLEN_IP6_ADDR)) {
-                return EDPVS_OK;
-            }
             if ((opcode == TCP_OPT_DCDN_ADDR)
                     && (*ptr == TOA_DCDN_IPV4) && (opsize == TCP_OLEN_IP4_ADDR - 1) && addr) {
                 memcpy(addr, ptr + 1, sizeof(struct in_addr));
@@ -743,6 +738,9 @@ static int tcp_fnat_in_handler(struct dp_vs_proto *proto,
     /* af/mbuf may be changed for nat64 which in af is ipv6 and out is ipv4 */
     int af = tuplehash_out(conn).af;
     int iphdrlen = ((AF_INET6 == af) ? ip6_hdrlen(mbuf): ip4_hdrlen(mbuf));
+#ifdef CONFIG_DPVS_IPVS_DEBUG
+    char dcdn_buf[64];
+#endif
 
     if (mbuf_may_pull(mbuf, iphdrlen + sizeof(*th)) != 0)
         return EDPVS_INVPKT;
@@ -769,14 +767,18 @@ static int tcp_fnat_in_handler(struct dp_vs_proto *proto,
         if (tcp_in_check_toa(conn, th, &dcdn_addr) == EDPVS_OK) {
             conn->dcdn_found = true;
             conn->dcdn_addr = dcdn_addr;
+#ifdef CONFIG_DPVS_IPVS_DEBUG
+            inet_ntop(AF_INET, &dcdn_addr, dcdn_buf, sizeof(dcdn_buf));
+            RTE_LOG(DEBUG, IPVS, "get dcdn toa addr %s\n", dcdn_buf);
+#endif
         }
-        //tcp_in_add_toa(conn, mbuf, th);
+        tcp_in_add_toa(conn, mbuf, th);
     }
 
     /* add toa to first data packet */
     if (ntohl(th->ack_seq) == conn->fnat_seq.fdata_seq
             && !th->syn && !th->rst /*&& !th->fin*/) {
-        //tcp_in_add_toa(conn, mbuf, th);
+        tcp_in_add_toa(conn, mbuf, th);
     }
     tcp_in_adjust_seq(conn, th);
 
